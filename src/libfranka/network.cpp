@@ -7,7 +7,7 @@
 
 using namespace std::string_literals;  // NOLINT(google-build-using-namespace)
 
-namespace franka {
+namespace panda_model {
 
 Network::Network(const std::string& franka_address,
                  uint16_t franka_port,
@@ -77,4 +77,4 @@ void Network::tcpThrowIfConnectionClosed() try {
   throw std::runtime_error("libfranka: "s + e.what());
 }
 
-}  // namespace franka
+}  // namespace panda_model

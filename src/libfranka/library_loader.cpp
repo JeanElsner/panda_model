@@ -8,7 +8,7 @@
 
 using namespace std::string_literals;  // NOLINT(google-build-using-namespace)
 
-namespace franka {
+namespace panda_model {
 
 LibraryLoader::LibraryLoader(const std::string& filepath) try {
   library_.load(filepath);
@@ -35,4 +35,4 @@ void* LibraryLoader::getSymbol(const std::string& symbol_name) try {
   throw std::runtime_error("libfranka: Error while fetching symbols: "s + e.what());
 }
 
-}  // namespace franka
+}  // namespace panda_model

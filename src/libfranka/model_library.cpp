@@ -4,7 +4,7 @@
 
 // #include "library_downloader.h"
 
-namespace franka {
+namespace panda_model {
 
 ModelLibrary::ModelLibrary(const std::string &path)
     : loader_(path),
@@ -39,4 +39,4 @@ ModelLibrary::ModelLibrary(const std::string &path)
       coriolis{reinterpret_cast<decltype(&c_NE)>(loader_.getSymbol("c_NE"))},
       gravity{reinterpret_cast<decltype(&g_NE)>(loader_.getSymbol("g_NE"))} {}
 
-}  // namespace franka
+}  // namespace panda_model

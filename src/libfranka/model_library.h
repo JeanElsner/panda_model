@@ -8,7 +8,7 @@
 #include "library_loader.h"
 // #include "network.h"
 
-namespace franka {
+namespace panda_model {
 
 class ModelLibrary {
  public:
@@ -55,4 +55,4 @@ class ModelLibrary {
   const std::function<decltype(g_NE)> gravity;
 };
 
-}  // namespace franka
+}  // namespace panda_model

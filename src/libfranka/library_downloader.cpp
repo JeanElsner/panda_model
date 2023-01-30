@@ -18,7 +18,7 @@
 
 using research_interface::robot::LoadModelLibrary;
 
-namespace franka {
+namespace panda_model {
 
 LibraryDownloader::LibraryDownloader(Network& network, const std::string &path,
   const LoadModelLibrary::Architecture &architecture,
@@ -80,4 +80,4 @@ const std::string& LibraryDownloader::path() const noexcept {
   return model_library_file_.path();
 }
 
-};  // namespace franka
+};  // namespace panda_model

@@ -4,7 +4,7 @@
 
 #include <Poco/SharedLibrary.h>
 
-namespace franka {
+namespace panda_model {
 
 /*
  * Wraps library loading and unloading with RAII.
@@ -20,4 +20,4 @@ class LibraryLoader {
   Poco::SharedLibrary library_;
 };
 
-}  // namespace franka
+}  // namespace panda_model

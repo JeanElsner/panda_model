@@ -24,10 +24,10 @@ bool downloadLibrary(const std::string &hostname, const std::string &path = "",
                      const LoadModelLibrary::System &operating_system =
                          LoadModelLibrary::System::kLinux,
                      const uint16_t version = 5) {
-  std::unique_ptr<franka::Network> network =
-      std::make_unique<franka::Network>(hostname, kCommandPort);
+  std::unique_ptr<panda_model::Network> network =
+      std::make_unique<panda_model::Network>(hostname, kCommandPort);
   uint16_t ri_version;
-  franka::connect<Connect>(*network, version, &ri_version);
+  panda_model::connect<Connect>(*network, version, &ri_version);
   std::map<LoadModelLibrary::Architecture, std::string> enumToString = {
       {LoadModelLibrary::Architecture::kX64, "x64"},
       {LoadModelLibrary::Architecture::kX86, "x86"},
@@ -42,7 +42,7 @@ bool downloadLibrary(const std::string &hostname, const std::string &path = "",
   pybind11::module_ os_path = pybind11::module::import("os.path");
   std::string final_path =
       os_path.attr("join")(path, filename).cast<std::string>();
-  auto downloader = new franka::LibraryDownloader(
+  auto downloader = new panda_model::LibraryDownloader(
       *network, final_path, architecture, operating_system);
   if (downloader->model_library_file_.exists()) {
     py::print("Library downloaded into: ", downloader->path());
@@ -93,21 +93,21 @@ PYBIND11_MODULE(_core, m) {
           True if download successful.
         )delim");
 
-  py::enum_<franka::Frame>(m, "Frame",
+  py::enum_<panda_model::Frame>(m, "Frame",
                            "Enumerates the seven joints, the flange, and the "
                            "end effector of a robot.")
-      .value("kJoint1", franka::Frame::kJoint1)
-      .value("kJoint2", franka::Frame::kJoint2)
-      .value("kJoint3", franka::Frame::kJoint3)
-      .value("kJoint4", franka::Frame::kJoint4)
-      .value("kJoint5", franka::Frame::kJoint5)
-      .value("kJoint6", franka::Frame::kJoint6)
-      .value("kJoint7", franka::Frame::kJoint7)
-      .value("kFlange", franka::Frame::kFlange)
-      .value("kEndEffector", franka::Frame::kEndEffector)
-      .value("kStiffness", franka::Frame::kStiffness);
+      .value("kJoint1", panda_model::Frame::kJoint1)
+      .value("kJoint2", panda_model::Frame::kJoint2)
+      .value("kJoint3", panda_model::Frame::kJoint3)
+      .value("kJoint4", panda_model::Frame::kJoint4)
+      .value("kJoint5", panda_model::Frame::kJoint5)
+      .value("kJoint6", panda_model::Frame::kJoint6)
+      .value("kJoint7", panda_model::Frame::kJoint7)
+      .value("kFlange", panda_model::Frame::kFlange)
+      .value("kEndEffector", panda_model::Frame::kEndEffector)
+      .value("kStiffness", panda_model::Frame::kStiffness);
 
-  py::class_<franka::Model>(
+  py::class_<panda_model::Model>(
       m, "Model",
       "Calculates poses of joints and dynamic properties of the robot.")
       .def(py::init<const std::string &>(), py::arg("path"), R"delim(
@@ -119,10 +119,10 @@ PYBIND11_MODULE(_core, m) {
           of processor architecture and operating system.
       )delim")
       .def("pose",
-           py::overload_cast<franka::Frame, const std::array<double, 7> &,
+           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
                              const std::array<double, 16> &,
                              const std::array<double, 16> &>(
-               &franka::Model::pose, py::const_),
+               &panda_model::Model::pose, py::const_),
            py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
            R"delim(
            Gets the 4x4 pose matrix for the given frame in base frame.
@@ -138,10 +138,10 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 4x4 pose matrix, column-major.
            )delim")
       .def("body_jacobian",
-           py::overload_cast<franka::Frame, const std::array<double, 7> &,
+           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
                              const std::array<double, 16> &,
                              const std::array<double, 16> &>(
-               &franka::Model::bodyJacobian, py::const_),
+               &panda_model::Model::bodyJacobian, py::const_),
            py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
            R"delim(
            Gets the 6x7 Jacobian for the given frame, relative to that frame.
@@ -157,10 +157,10 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 6x7 Jacobian, column-major.
            )delim")
       .def("zero_jacobian",
-           py::overload_cast<franka::Frame, const std::array<double, 7> &,
+           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
                              const std::array<double, 16> &,
                              const std::array<double, 16> &>(
-               &franka::Model::zeroJacobian, py::const_),
+               &panda_model::Model::zeroJacobian, py::const_),
            py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
            R"delim(
            Gets the 6x7 Jacobian for the given joint relative to the base frame.
@@ -179,7 +179,7 @@ PYBIND11_MODULE(_core, m) {
            py::overload_cast<const std::array<double, 7> &,
                              const std::array<double, 9> &, double,
                              const std::array<double, 3> &>(
-               &franka::Model::mass, py::const_),
+               &panda_model::Model::mass, py::const_),
            py::arg("q"), py::arg("I_total"), py::arg("m_total"),
            py::arg("F_x_Ctotal"), R"delim(
            Calculates the 7x7 mass matrix. Unit: :math:`[kg \times m^2]`.
@@ -200,7 +200,7 @@ PYBIND11_MODULE(_core, m) {
                              const std::array<double, 7> &,
                              const std::array<double, 9> &, double,
                              const std::array<double, 3> &>(
-               &franka::Model::coriolis, py::const_),
+               &panda_model::Model::coriolis, py::const_),
            py::arg("q"), py::arg("dq"), py::arg("I_total"), py::arg("m_total"),
            py::arg("F_x_Ctotal"), R"delim(
            Calculates the Coriolis force vector (state-space equation): :math:` c= C \times
@@ -223,7 +223,7 @@ PYBIND11_MODULE(_core, m) {
            py::overload_cast<const std::array<double, 7> &, double,
                              const std::array<double, 3> &,
                              const std::array<double, 3> &>(
-               &franka::Model::gravity, py::const_),
+               &panda_model::Model::gravity, py::const_),
            py::arg("q"), py::arg("m_total"), py::arg("F_x_Ctotal"),
            py::arg("gravity_earth") = gravity_earth, R"delim(
            Calculates the gravity vector. Unit: :math:`[Nm]`.

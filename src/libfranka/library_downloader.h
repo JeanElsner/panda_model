@@ -11,7 +11,7 @@
 
 using research_interface::robot::LoadModelLibrary;
 
-namespace franka {
+namespace panda_model {
 
 class LibraryDownloader {
  public:
@@ -26,4 +26,4 @@ class LibraryDownloader {
   Poco::File model_library_file_;
 };
 
-};  // namespace franka
+};  // namespace panda_model

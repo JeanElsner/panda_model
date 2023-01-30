@@ -18,7 +18,7 @@
 
 // #include <franka/exception.h>
 
-namespace franka {
+namespace panda_model {
 
 class Network {
  public:
@@ -280,4 +280,4 @@ void connect(Network& network, const uint16_t &version, uint16_t* ri_version) {
   }
 }
 
-}  // namespace franka
+}  // namespace panda_model
