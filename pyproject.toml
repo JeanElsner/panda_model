@@ -1,0 +1,16 @@
+[build-system]
+requires = ["scikit-build-core", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "panda-model"
+version = "0.0.1"
+requires-python = ">=3.7"
+authors = [
+    { name = "Jean Elsner", email = "jean.elsner@tum.de" },
+]
+dependencies = [
+]
+
+[tool.scikit-build]
+cmake.build-type = "Release"
