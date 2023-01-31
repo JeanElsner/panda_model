@@ -15,13 +15,13 @@ jobs:
           - os: ubuntu-22.04
           - os: ubuntu-20.04
 
-    name: "panda-model on ${{ matrix.os }}"
+    name: "panda-model on ${{ matrix.os }} with ${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set up Linux
@@ -32,7 +32,7 @@ jobs:
       - name: Build Python
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -e .
+          pip install .
       - name: Build C++
         run: >
           mkdir build &&
