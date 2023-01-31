@@ -5,8 +5,8 @@ build:
   tools:
     python: "3.11"
   apt_packages:
-    - libpoco-devel
-    - libeigen3-devel
+    - libpoco-dev
+    - libeigen3-dev
 
 sphinx:
    configuration: docs/conf.py
