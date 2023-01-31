@@ -1,5 +1,7 @@
 ![robot_model logo](https://raw.githubusercontent.com/JeanElsner/panda_model/main/logo.jpg)
 
+[![Documentation Status](https://readthedocs.org/projects/panda-model/badge/?version=latest)](https://panda-model.readthedocs.io/en/latest/?badge=latest)
+
 panda-model allows the offline use of the `Model` class from [libfranka](https://github.com/frankaemika/libfranka) without a connection to the master control unit. To do this, a shared library needs to be downloaded from an FCI enabled Franka Emika master control unit using the included tools.
 
 To get startet check out the [Documentation](https://panda-model.readthedocs.io) as well as the examples.
