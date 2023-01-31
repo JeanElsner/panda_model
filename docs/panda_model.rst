@@ -1,5 +1,3 @@
-panda\_model package
-====================
 
 .. automodule:: panda_model
    :members:

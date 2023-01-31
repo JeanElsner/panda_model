@@ -2,6 +2,7 @@
 
 panda-model allows the offline use of the `Model` class from [libfranka](https://github.com/frankaemika/libfranka) without a connection to the master control unit. To do this, a shared library needs to be downloaded from an FCI enabled Franka Emika master control unit using the included tools.
 
+To get startet check out the [Documentation](https://panda-model.readthedocs.io) as well as the examples.
 ## Installation
 ### Python
 Clone the repository and install the package using pip by executing the following from the root directory:
