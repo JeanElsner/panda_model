@@ -4,7 +4,7 @@ panda-model allows the offline use of the `Model` class from [libfranka](https:/
 
 ## Installation
 ### Python
-Clone the repository install the package using pip by executing the following from the root directory:
+Clone the repository and install the package using pip by executing the following from the root directory:
 ```
 pip install .
 ```
@@ -22,4 +22,7 @@ cpack -G DEB
 sudo dpkg -i panda_model*.deb
 ```
 ### Requirements
-panda-model requires libpoco at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running: `sudo apt-get install python3-pip build-essential cmake libpoco-dev libeigen3-dev`
+panda-model requires libpoco at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running:
+```
+sudo apt-get install python3-pip build-essential cmake libpoco-dev libeigen3-dev
+```
