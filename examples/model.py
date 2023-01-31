@@ -1,12 +1,12 @@
 """ Simple example demonstrating `Model` class. """
 import numpy as np
-
+import os
 from panda_model import Model, Frame
 
 # Path to shared library, can be relative
 PATH = './libfrankamodel.linux_x64.so'
 
-model = Model(PATH)
+model = Model(os.path.join( os.path.dirname(os.path.abspath(__file__)), PATH))
 
 # Starting position
 q_0 = np.array([0, -np.pi / 4, 0, -3 * np.pi / 4, 0, np.pi / 2, np.pi / 4])
