@@ -8,7 +8,7 @@
 #include <map>
 
 #include "library_downloader.h"
-#include "model.h"
+#include "pandamodel/model.h"
 #include "network.h"
 #include "service_types.h"
 

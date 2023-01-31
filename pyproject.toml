@@ -14,3 +14,6 @@ dependencies = [
 
 [tool.scikit-build]
 cmake.build-type = "Release"
+
+[tool.scikit-build.cmake.define]
+BUILD_PYTHON = "ON"
