@@ -22,7 +22,7 @@ cpack -G DEB
 sudo dpkg -i panda_model*.deb
 ```
 ### Requirements
-panda-model requires libpoco at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running:
+panda-model requires POCO C++ libraries at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running:
 ```
 sudo apt-get install python3-pip build-essential cmake libpoco-dev libeigen3-dev
 ```
