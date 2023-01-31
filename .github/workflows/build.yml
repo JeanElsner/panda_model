@@ -15,7 +15,7 @@ jobs:
           - os: ubuntu-22.04
           - os: ubuntu-20.04
 
-    name: "panda-model on ${{ matrix.os }} with ${{ matrix.python-version }}"
+    name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -37,7 +37,7 @@ jobs:
         run: >
           mkdir build &&
           cd build &&
-          cmake .. -DBUILD_CPP=ON
-          cmake --build .
+          cmake .. -DBUILD_CPP=ON &&
+          cmake --build . &&
           cpack -G DEB
           
