@@ -5,8 +5,18 @@
 
 panda-model allows the offline use of the `Model` class from [libfranka](https://github.com/frankaemika/libfranka) without a connection to the master control unit. To do this, a shared library needs to be downloaded from an FCI enabled Franka Emika master control unit using the included tools.
 
-To get startet check out the [Documentation](https://panda-model.readthedocs.io) as well as the examples.
-## Installation
+To get startet install panda-model as described below and check out the [Documentation](https://panda-model.readthedocs.io) as well as the examples.
+# Installation
+## Requirements
+panda-model requires POCO C++ libraries at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running:
+```
+sudo apt-get install python3-pip build-essential cmake libpoco-dev libeigen3-dev
+```
+## Using pip
+```
+pip install panda_model
+```
+## From Source
 ### Python
 Clone the repository and install the package using pip by executing the following from the root directory:
 ```
@@ -24,9 +34,4 @@ You can then install the library using `sudo make install` or by building a deb 
 ```
 cpack -G DEB
 sudo dpkg -i panda_model*.deb
-```
-### Requirements
-panda-model requires POCO C++ libraries at runtime, additionally Eigen3 is required to build the project. You can install all necessary requirements on Ubuntu by running:
-```
-sudo apt-get install python3-pip build-essential cmake libpoco-dev libeigen3-dev
 ```
