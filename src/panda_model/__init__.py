@@ -1,13 +1,15 @@
-"""
+r"""
 ===============
 Get the Library
 ===============
+
 You can download the shared library from any master control unit
 using the command line utility by simply calling
 
 .. code-block:: bash
 
-    panda_model_download 192.168.0.1
+   panda_model_download <robot-ip>
+
 
 with the respective IP or hostname of your robot. See
 `panda_model_download -\-help` for additional options. You may
@@ -18,10 +20,11 @@ Alternatively you can also control the download from Python code.
 
 .. code-block:: python
 
-    from panda_model import download_library
+   from panda_model import download_library
 
-    download_library('192.168.0.1')
-    # Library downloaded into:  ./libfrankamodel.linux_x64.so
+   path = download_library('<robot-ip>')
+   print(f'Library downloaded as: {path}')
+
 
 ================
 Access the Model
@@ -33,18 +36,41 @@ coriolis, gravity, mass matrix etc. given a state:
 
 .. code-block:: python
 
-    from panda_model import Model, Frame
+   from panda_model import Model, Frame
 
-    frame = Frame.kEndEffector
-    F_T_EE = np.eye(4).flatten()
-    EE_T_K = np.eye(4).flatten()
+   frame = Frame.kEndEffector
+   q = [0, -np.pi / 4, 0, -3 * np.pi / 4, 0, np.pi / 2, np.pi / 4]
 
-    model = Model('./libfrankamodel.linux_x64.so')
-    model.zero_jacobian(frame, q_0, F_T_EE, EE_T_K)
+   model = Model('<path-to-lib>')
+   model.zero_jacobian(frame, q)
 
-For more information, please refer to the examples and the API documentation
-of the :class:`Model` class.
+
+================
+Run the examples
+================
+
+To run the examples included in the repository, you need to set a few
+environment variables. Set `PANDA_MODEL_PATH`, `PANDA_MODEL_HOST` and
+`PANDA_MODEL_VER` to the path pointing to the shared library you downloaded,
+the hostname or IP of the connected control unit and the server version
+running on the control unit respectively. For instance, on a Unix-like system
+simply run:
+
+.. code-block:: bash
+
+   export PANDA_MODEL_PATH=<path-to-lib> PANDA_MODEL_HOST=<robot-ip> PANDA_MODEL_VER=<version>
+
 """
-from ._core import download_library, Frame, Model, Architecture, OperatingSystem
+import numpy as np
 
-__all__ = ['download_library', 'Model', 'Frame', 'Architecture', 'OperatingSystem']
+from ._core import (Architecture, Defaults, Frame, Model, OperatingSystem,
+                    download_library)
+
+__all__ = [
+    "download_library",
+    "Model",
+    "Frame",
+    "Defaults",
+    "Architecture",
+    "OperatingSystem",
+]
