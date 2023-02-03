@@ -1,9 +1,12 @@
 from __future__ import annotations
 import panda_model._core
 import typing
+import numpy
+_Shape = typing.Tuple[int, ...]
 
 __all__ = [
     "Architecture",
+    "Defaults",
     "Frame",
     "Model",
     "OperatingSystem",
@@ -49,6 +52,33 @@ class Architecture():
     arm64: panda_model._core.Architecture # value = <Architecture.arm64: 3>
     x64: panda_model._core.Architecture # value = <Architecture.x64: 0>
     x86: panda_model._core.Architecture # value = <Architecture.x86: 1>
+    pass
+class Defaults():
+    """
+    Default parameters for the Panda with standard gripper and no external load.
+    """
+    EE_T_K: numpy.ndarray # value = 
+    """
+    array([[1., 0., 0., 0.],
+           [0., 1., 0., 0.],
+           [0., 0., 1., 0.],
+           [0., 0., 0., 1.]])
+    """
+    F_T_EE: numpy.ndarray # value = 
+    """
+    array([[ 0.7071,  0.7071,  0.    ,  0.    ],
+           [-0.7071,  0.7071,  0.    ,  0.    ],
+           [ 0.    ,  0.    ,  1.    ,  0.1034],
+           [ 0.    ,  0.    ,  0.    ,  1.    ]])
+    """
+    F_X_CTOTAL: numpy.ndarray # value = array([-0.01,  0.  ,  0.03])
+    I_TOTAL: numpy.ndarray # value = 
+    """
+    array([[0.001 , 0.    , 0.    ],
+           [0.    , 0.0025, 0.    ],
+           [0.    , 0.    , 0.0017]])
+    """
+    M_TOTAL = 0.73
     pass
 class Frame():
     """
@@ -120,7 +150,37 @@ class Model():
             The library must be compatible with the host system, i.e. in terms
             of processor architecture and operating system.
         """
-    def body_jacobian(self, frame: Frame, q: typing.List[float[7]], F_T_EE: typing.List[float[16]], EE_T_K: typing.List[float[16]]) -> typing.List[float[42]]: 
+    def gravity(self, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], m_total: float = 0.73, F_x_Ctotal: numpy.ndarray[numpy.float64, _Shape[3, 1]] = array([-0.01,  0.  ,  0.03]), gravity_earth: numpy.ndarray[numpy.float64, _Shape[3, 1]] = array([ 0.  ,  0.  , -9.81])) -> numpy.ndarray[numpy.float64, _Shape[7, 1]]: 
+        """
+        Calculates the gravity vector. Unit: :math:`[Nm]`.
+
+        Args:
+          q: Joint position.
+          m_total: Weight of the attached total load including end effector.
+            Unit: :math:`[kg]`.
+          F_x_Ctotal: Translation from flange to center of mass of the attached total load.
+            Unit: :math:`[m]`.
+          gravity_earth: Earth's gravity vector. Unit: :math:`\frac{m}{s^2}`.
+            Default to {0.0, 0.0, -9.81}.
+
+        Returns:
+          Gravity vector.
+        """
+    def pose(self, frame:panda_model._core.Frame, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], F_T_EE: numpy.ndarray[numpy.float64, _Shape[4, 4]] = array([[0.7071, 0.7071, 0, 0], [-0.7071, 0.7071, 0, 0], [0, 0, 1, 0.1034], [0, 0, 0, 1]]), EE_T_K: numpy.ndarray[numpy.float64, _Shape[4, 4]] = numpy.eye(4)) -> numpy.ndarray[numpy.float64, _Shape[4, 4]]:
+        """
+        Gets the 4x4 pose matrix for the given frame in base frame.
+        The pose is represented as a 4x4 matrix in column-major format.
+
+        Args:
+          frame: The desired frame.
+          q: Joint position.
+          F_T_EE: End effector in flange frame.
+          EE_T_K: Stiffness frame K in the end effector frame.
+
+        Returns:
+          Vectorized 4x4 pose matrix, column-major.
+        """
+    def body_jacobian(self, frame:panda_model._core.Frame, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], F_T_EE: numpy.ndarray[numpy.float64, _Shape[4, 4]] = array([[0.7071, 0.7071, 0, 0], [-0.7071, 0.7071, 0, 0], [0, 0, 1, 0.1034], [0, 0, 0, 1]]), EE_T_K: numpy.ndarray[numpy.float64, _Shape[4, 4]] = numpy.eye(4)) -> numpy.ndarray[numpy.float64, _Shape[6, 7]]:
         """
         Gets the 6x7 Jacobian for the given frame, relative to that frame.
         The Jacobian is represented as a 6x7 matrix in column-major format.
@@ -132,9 +192,37 @@ class Model():
           EE_T_K: Stiffness frame K in the end effector frame.
 
         Returns:
+        """
+    def zero_jacobian(self, frame:panda_model._core.Frame, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], F_T_EE: numpy.ndarray[numpy.float64, _Shape[4, 4]] = array([[0.7071, 0.7071, 0, 0], [-0.7071, 0.7071, 0, 0], [0, 0, 1, 0.1034], [0, 0, 0, 1]]), EE_T_K: numpy.ndarray[numpy.float64, _Shape[4, 4]] = numpy.eye(4)) -> numpy.ndarray[numpy.float64, _Shape[6, 7]]:
+        """
+        Gets the 6x7 Jacobian for the given joint relative to the base frame.
+        The Jacobian is represented as a 6x7 matrix in column-major format.
+
+        Args:
+          frame: The desired frame.
+          q: Joint position.
+          F_T_EE: End effector in flange frame.
+          EE_T_K: Stiffness frame K in the end effector frame.
+
+        Returns:
           Vectorized 6x7 Jacobian, column-major.
         """
-    def coriolis(self, q: typing.List[float[7]], dq: typing.List[float[7]], I_total: typing.List[float[9]], m_total: float, F_x_Ctotal: typing.List[float[3]]) -> typing.List[float[7]]: 
+    def mass(self, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], I_total: numpy.ndarray[numpy.float64, _Shape[4, 4]] = array([0.001, 0, 0], [0, 0.0025, 0], [0, 0, 0.0017]), m_total: float = 0.73, F_x_Ctotal: numpy.ndarray[numpy.float64, _Shape[3, 1]] = array([-0.01, 0, 0.03])) -> numpy.ndarray[numpy.float64, _Shape[7, 7]]:
+        """
+        Calculates the 7x7 mass matrix. Unit: :math:`[kg \times m^2]`.
+
+        Args:
+          q: Joint position.
+          I_total: Inertia of the attached total load including end effector, relative to
+            center of mass, given as vectorized 3x3 column-major matrix. Unit: :math:`[kg \times m^2]`.
+          m_total: Weight of the attached total load including end effector. Unit: :math:`[kg]`.
+          F_x_Ctotal: Translation from flange to center of mass of the attached total load.
+            Unit: :math:`[m]`.
+
+        Returns:
+          Vectorized 7x7 mass matrix, column-major.
+        """
+    def coriolis(self, q: numpy.ndarray[numpy.float64, _Shape[7, 1]], dq: numpy.ndarray[numpy.float64, _Shape[7, 1]], I_total: numpy.ndarray[numpy.float64, _Shape[4, 4]] = array([0.001, 0, 0], [0, 0.0025, 0], [0, 0, 0.0017]), m_total: float = 0.73, F_x_Ctotal: numpy.ndarray[numpy.float64, _Shape[3, 1]] = array([-0.01, 0, 0.03])) -> numpy.ndarray[numpy.float64, _Shape[7, 1]]:
         """
         Calculates the Coriolis force vector (state-space equation): :math:` c= C \times
         dq`, in :math:`[Nm]`.
@@ -151,65 +239,6 @@ class Model():
 
         Returns:
           Coriolis force vector.
-        """
-    def gravity(self, q: typing.List[float[7]], m_total: float, F_x_Ctotal: typing.List[float[3]], gravity_earth: typing.List[float[3]] = [0.0, 0.0, -9.81]) -> typing.List[float[7]]: 
-        """
-        Calculates the gravity vector. Unit: :math:`[Nm]`.
-
-        Args:
-          q: Joint position.
-          m_total: Weight of the attached total load including end effector.
-            Unit: :math:`[kg]`.
-          F_x_Ctotal: Translation from flange to center of mass of the attached total load.
-            Unit: :math:`[m]`.
-          gravity_earth: Earth's gravity vector. Unit: :math:`\frac{m}{s^2}`.
-            Default to {0.0, 0.0, -9.81}.
-
-        Returns:
-          Gravity vector.
-        """
-    def mass(self, q: typing.List[float[7]], I_total: typing.List[float[9]], m_total: float, F_x_Ctotal: typing.List[float[3]]) -> typing.List[float[49]]: 
-        """
-        Calculates the 7x7 mass matrix. Unit: :math:`[kg \times m^2]`.
-
-        Args:
-          q: Joint position.
-          I_total: Inertia of the attached total load including end effector, relative to
-             center of mass, given as vectorized 3x3 column-major matrix. Unit: :math:`[kg \times m^2]`.
-          m_total: Weight of the attached total load including end effector. Unit: :math:`[kg]`.
-          F_x_Ctotal: Translation from flange to center of mass of the attached total load.
-            Unit: :math:`[m]`.
-
-        Returns:
-          Vectorized 7x7 mass matrix, column-major.
-        """
-    def pose(self, frame: Frame, q: typing.List[float[7]], F_T_EE: typing.List[float[16]], EE_T_K: typing.List[float[16]]) -> typing.List[float[16]]: 
-        """
-        Gets the 4x4 pose matrix for the given frame in base frame.
-        The pose is represented as a 4x4 matrix in column-major format.
-
-        Args:
-          frame: The desired frame.
-          q: Joint position.
-          F_T_EE: End effector in flange frame.
-          EE_T_K: Stiffness frame K in the end effector frame.
-
-        Returns:
-          Vectorized 4x4 pose matrix, column-major.
-        """
-    def zero_jacobian(self, frame: Frame, q: typing.List[float[7]], F_T_EE: typing.List[float[16]], EE_T_K: typing.List[float[16]]) -> typing.List[float[42]]: 
-        """
-        Gets the 6x7 Jacobian for the given joint relative to the base frame.
-        The Jacobian is represented as a 6x7 matrix in column-major format.
-
-        Args:
-          frame: The desired frame.
-          q: Joint position.
-          F_T_EE: End effector in flange frame.
-          EE_T_K: Stiffness frame K in the end effector frame.
-
-        Returns:
-          Vectorized 6x7 Jacobian, column-major.
         """
     pass
 class OperatingSystem():
@@ -245,7 +274,7 @@ class OperatingSystem():
     linux: panda_model._core.OperatingSystem # value = <OperatingSystem.linux: 0>
     windows: panda_model._core.OperatingSystem # value = <OperatingSystem.windows: 1>
     pass
-def download_library(hostname: str, path: str = '', architecture: Architecture = Architecture.x64, operating_system: OperatingSystem = OperatingSystem.linux, version: int = 5) -> bool:
+def download_library(hostname: str, path: str = '', architecture: Architecture = Architecture.x64, operating_system: OperatingSystem = OperatingSystem.linux, version: int = 5) -> str:
     """
     Download model library from a connected control unit.
 
@@ -259,5 +288,5 @@ def download_library(hostname: str, path: str = '', architecture: Architecture =
       version: FCI version running on the targeted master control unit.
 
     Returns:
-      True if download successful.
+      Path pointing to the downloaded library.
     """
