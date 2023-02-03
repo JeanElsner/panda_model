@@ -4,9 +4,9 @@
 
 #include <array>
 #include <memory>
+#include <Eigen/Core>
 
-// #include <franka/robot.h>
-// #include <franka/robot_state.h>
+#include "pandamodel/defaults.h"
 
 /**
  * @file model.h
@@ -50,18 +50,6 @@ class ModelLibrary;
  */
 class Model {
  public:
-//   /**
-//    * Creates a new Model instance.
-//    *
-//    * This constructor is for internal use only.
-//    *
-//    * @see Robot::loadModel
-//    *
-//    * @param[in] network For internal use.
-//    *
-//    * @throw ModelException if the model library cannot be loaded.
-//    */
-//   explicit Model(panda_model::Network& network);
 
   explicit Model(const std::string &path);
 
@@ -86,18 +74,6 @@ class Model {
    */
   ~Model() noexcept;
 
-//   /**
-//    * Gets the 4x4 pose matrix for the given frame in base frame.
-//    *
-//    * The pose is represented as a 4x4 matrix in column-major format.
-//    *
-//    * @param[in] frame The desired frame.
-//    * @param[in] robot_state State from which the pose should be calculated.
-//    *
-//    * @return Vectorized 4x4 pose matrix, column-major.
-//    */
-//   std::array<double, 16> pose(Frame frame, const panda_model::RobotState& robot_state) const;
-
   /**
    * Gets the 4x4 pose matrix for the given frame in base frame.
    *
@@ -110,24 +86,12 @@ class Model {
    *
    * @return Vectorized 4x4 pose matrix, column-major.
    */
-  std::array<double, 16> pose(
+  Eigen::Matrix4d pose(
       Frame frame,
-      const std::array<double, 7>& q,
-      const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-      const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+      const Eigen::Matrix<double, 7, 1>& q,
+      const Eigen::Matrix4d& F_T_EE = Defaults::F_T_EE,
+      const Eigen::Matrix4d& EE_T_K = Defaults::EE_T_K)
       const;
-
-//   /**
-//    * Gets the 6x7 Jacobian for the given frame, relative to that frame.
-//    *
-//    * The Jacobian is represented as a 6x7 matrix in column-major format.
-//    *
-//    * @param[in] frame The desired frame.
-//    * @param[in] robot_state State from which the pose should be calculated.
-//    *
-//    * @return Vectorized 6x7 Jacobian, column-major.
-//    */
-//   std::array<double, 42> bodyJacobian(Frame frame, const panda_model::RobotState& robot_state) const;
 
   /**
    * Gets the 6x7 Jacobian for the given frame, relative to that frame.
@@ -141,24 +105,12 @@ class Model {
    *
    * @return Vectorized 6x7 Jacobian, column-major.
    */
-  std::array<double, 42> bodyJacobian(
+  Eigen::Matrix<double, 6, 7> bodyJacobian(
       Frame frame,
-      const std::array<double, 7>& q,
-      const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-      const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+      const Eigen::Matrix<double, 7, 1>& q,
+      const Eigen::Matrix4d& F_T_EE = Defaults::F_T_EE,
+      const Eigen::Matrix4d& EE_T_K = Defaults::EE_T_K)
       const;
-
-//   /**
-//    * Gets the 6x7 Jacobian for the given joint relative to the base frame.
-//    *
-//    * The Jacobian is represented as a 6x7 matrix in column-major format.
-//    *
-//    * @param[in] frame The desired frame.
-//    * @param[in] robot_state State from which the pose should be calculated.
-//    *
-//    * @return Vectorized 6x7 Jacobian, column-major.
-//    */
-//   std::array<double, 42> zeroJacobian(Frame frame, const panda_model::RobotState& robot_state) const;
 
   /**
    * Gets the 6x7 Jacobian for the given joint relative to the base frame.
@@ -172,21 +124,12 @@ class Model {
    *
    * @return Vectorized 6x7 Jacobian, column-major.
    */
-  std::array<double, 42> zeroJacobian(
+  Eigen::Matrix<double, 6, 7> zeroJacobian(
       Frame frame,
-      const std::array<double, 7>& q,
-      const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-      const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+      const Eigen::Matrix<double, 7, 1>& q,
+      const Eigen::Matrix4d& F_T_EE = Defaults::EE_T_K,
+      const Eigen::Matrix4d& EE_T_K = Defaults::EE_T_K)
       const;
-
-//   /**
-//    * Calculates the 7x7 mass matrix. Unit: \f$[kg \times m^2]\f$.
-//    *
-//    * @param[in] robot_state State from which the mass matrix should be calculated.
-//    *
-//    * @return Vectorized 7x7 mass matrix, column-major.
-//    */
-//   std::array<double, 49> mass(const panda_model::RobotState& robot_state) const noexcept;
 
   /**
    * Calculates the 7x7 mass matrix. Unit: \f$[kg \times m^2]\f$.
@@ -201,22 +144,12 @@ class Model {
    *
    * @return Vectorized 7x7 mass matrix, column-major.
    */
-  std::array<double, 49> mass(
-      const std::array<double, 7>& q,
-      const std::array<double, 9>& I_total,  // NOLINT(readability-identifier-naming)
-      double m_total,
-      const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
+  Eigen::Matrix<double, 7, 7> mass(
+      const Eigen::Matrix<double, 7, 1>& q,
+      const Eigen::Matrix3d& I_total = Defaults::I_total,
+      double m_total = Defaults::m_total,
+      const Eigen::Vector3d& F_x_Ctotal = Defaults::F_x_Ctotal)
       const noexcept;
-
-//   /**
-//    * Calculates the Coriolis force vector (state-space equation): \f$ c= C \times
-//    * dq\f$, in \f$[Nm]\f$.
-//    *
-//    * @param[in] robot_state State from which the Coriolis force vector should be calculated.
-//    *
-//    * @return Coriolis force vector.
-//    */
-//   std::array<double, 7> coriolis(const panda_model::RobotState& robot_state) const noexcept;
 
   /**
    * Calculates the Coriolis force vector (state-space equation): \f$ c= C \times
@@ -233,12 +166,12 @@ class Model {
    *
    * @return Coriolis force vector.
    */
-  std::array<double, 7> coriolis(
-      const std::array<double, 7>& q,
-      const std::array<double, 7>& dq,
-      const std::array<double, 9>& I_total,  // NOLINT(readability-identifier-naming)
-      double m_total,
-      const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
+  Eigen::Matrix<double, 7, 1> coriolis(
+      const Eigen::Matrix<double, 7, 1>& q,
+      const Eigen::Matrix<double, 7, 1>& dq,
+      const Eigen::Matrix3d& I_total = Defaults::I_total,
+      double m_total = Defaults::m_total,
+      const Eigen::Vector3d& F_x_Ctotal = Defaults::F_x_Ctotal)
       const noexcept;
 
   /**
@@ -254,31 +187,11 @@ class Model {
    *
    * @return Gravity vector.
    */
-  std::array<double, 7> gravity(
-      const std::array<double, 7>& q,
-      double m_total,
-      const std::array<double, 3>& F_x_Ctotal,  // NOLINT(readability-identifier-naming)
-      const std::array<double, 3>& gravity_earth = {{0., 0., -9.81}}) const noexcept;
-
-//   /**
-//    * Calculates the gravity vector. Unit: \f$[Nm]\f$.
-//    *
-//    * @param[in] robot_state State from which the gravity vector should be calculated.
-//    * @param[in] gravity_earth Earth's gravity vector. Unit: \f$\frac{m}{s^2}\f$.
-//    *
-//    * @return Gravity vector.
-//    */
-//   std::array<double, 7> gravity(const panda_model::RobotState& robot_state,
-//                                 const std::array<double, 3>& gravity_earth) const noexcept;
-
-//   /**
-//    * Calculates the gravity vector using the robot state. Unit: \f$[Nm]\f$.
-//    *
-//    * @param[in] robot_state State from which the gravity vector should be calculated.
-//    *
-//    * @return Gravity vector.
-//    */
-//   std::array<double, 7> gravity(const panda_model::RobotState& robot_state) const noexcept;
+  Eigen::Matrix<double, 7, 1> gravity(
+      const Eigen::Matrix<double, 7, 1>& q,
+      double m_total = Defaults::m_total,
+      const Eigen::Vector3d& F_x_Ctotal = Defaults::F_x_Ctotal,
+      const Eigen::Vector3d& gravity_earth = {0., 0., -9.81}) const noexcept;
 
   /// @cond DO_NOT_DOCUMENT
   Model(const Model&) = delete;

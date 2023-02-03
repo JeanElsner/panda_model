@@ -4,13 +4,11 @@
 #include "pandamodel/model.h"
 
 #include <sstream>
+#include <iostream>
 
 #include <Eigen/Core>
 
-// #include <research_interface/robot/service_types.h>
-
 #include "model_library.h"
-// #include "network.h"
 #include "service_types.h"
 
 using namespace std::string_literals;  // NOLINT(google-build-using-namespace)
@@ -23,7 +21,6 @@ Frame operator++(Frame& frame, int /* dummy */) noexcept {
   return original;
 }
 
-// Model::Model(Network& network) : library_{new ModelLibrary(network)} {}
 Model::Model(const std::string &path) : library_{new ModelLibrary(path)} {}
 
 // Has to be declared here, as the ModelLibrary type is incomplete in the header
@@ -31,15 +28,11 @@ Model::~Model() noexcept = default;
 Model::Model(Model&&) noexcept = default;
 Model& Model::operator=(Model&&) noexcept = default;
 
-// std::array<double, 16> Model::pose(Frame frame, const panda_model::RobotState& robot_state) const {
-//   return pose(frame, robot_state.q, robot_state.F_T_EE, robot_state.EE_T_K);
-// }
-
-std::array<double, 16> Model::pose(
+Eigen::Matrix4d Model::pose(
     Frame frame,
-    const std::array<double, 7>& q,
-    const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-    const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+    const Eigen::Matrix<double, 7, 1>& q,
+    const Eigen::Matrix4d& F_T_EE,
+    const Eigen::Matrix4d& EE_T_K)
     const {
   std::array<double, 16> output;
   switch (frame) {
@@ -79,20 +72,14 @@ std::array<double, 16> Model::pose(
     default:
       throw std::invalid_argument("Invalid frame given.");
   }
-
-  return output;
+  return Eigen::Map<const Eigen::Matrix4d>(output.data());
 }
 
-// std::array<double, 42> Model::bodyJacobian(Frame frame,
-//                                            const panda_model::RobotState& robot_state) const {
-//   return bodyJacobian(frame, robot_state.q, robot_state.F_T_EE, robot_state.EE_T_K);
-// }
-
-std::array<double, 42> Model::bodyJacobian(
+Eigen::Matrix<double, 6, 7> Model::bodyJacobian(
     Frame frame,
-    const std::array<double, 7>& q,
-    const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-    const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+    const Eigen::Matrix<double, 7, 1>& q,
+    const Eigen::Matrix4d& F_T_EE,
+    const Eigen::Matrix4d& EE_T_K)
     const {
   std::array<double, 42> output;
   switch (frame) {
@@ -132,20 +119,14 @@ std::array<double, 42> Model::bodyJacobian(
     default:
       throw std::invalid_argument("Invalid frame given.");
   }
-
-  return output;
+  return Eigen::Map<const Eigen::Matrix<double, 6, 7>>(output.data());
 }
 
-// std::array<double, 42> Model::zeroJacobian(Frame frame,
-//                                            const panda_model::RobotState& robot_state) const {
-//   return zeroJacobian(frame, robot_state.q, robot_state.F_T_EE, robot_state.EE_T_K);
-// };
-
-std::array<double, 42> Model::zeroJacobian(
+Eigen::Matrix<double, 6, 7> Model::zeroJacobian(
     Frame frame,
-    const std::array<double, 7>& q,
-    const std::array<double, 16>& F_T_EE,  // NOLINT(readability-identifier-naming)
-    const std::array<double, 16>& EE_T_K)  // NOLINT(readability-identifier-naming)
+    const Eigen::Matrix<double, 7, 1>& q,
+    const Eigen::Matrix4d& F_T_EE,
+    const Eigen::Matrix4d& EE_T_K)
     const {
   std::array<double, 42> output;
   switch (frame) {
@@ -185,65 +166,42 @@ std::array<double, 42> Model::zeroJacobian(
     default:
       throw std::invalid_argument("Invalid frame given.");
   }
-
-  return output;
+  std::cout << F_T_EE << std::endl;
+  return Eigen::Map<const Eigen::Matrix<double, 6, 7>>(output.data());
 }
 
-// std::array<double, 49> panda_model::Model::mass(const panda_model::RobotState& robot_state) const noexcept {
-//   return mass(robot_state.q, robot_state.I_total, robot_state.m_total, robot_state.F_x_Ctotal);
-// }
-
-std::array<double, 49> panda_model::Model::mass(
-    const std::array<double, 7>& q,
-    const std::array<double, 9>& I_total,  // NOLINT(readability-identifier-naming)
+Eigen::Matrix<double, 7, 7> Model::mass(
+    const Eigen::Matrix<double, 7, 1>& q,
+    const Eigen::Matrix3d& I_total,
     double m_total,
-    const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
+    const Eigen::Vector3d& F_x_Ctotal)
     const noexcept {
   std::array<double, 49> output;
   library_->mass(q.data(), I_total.data(), m_total, F_x_Ctotal.data(), output.data());
-
-  return output;
+  return Eigen::Map<const Eigen::Matrix<double, 7, 7>>(output.data());
 }
 
-// std::array<double, 7> panda_model::Model::coriolis(const panda_model::RobotState& robot_state) const
-//     noexcept {
-//   return coriolis(robot_state.q, robot_state.dq, robot_state.I_total, robot_state.m_total,
-//                   robot_state.F_x_Ctotal);
-// }
-
-std::array<double, 7> panda_model::Model::coriolis(
-    const std::array<double, 7>& q,
-    const std::array<double, 7>& dq,
-    const std::array<double, 9>& I_total,  // NOLINT(readability-identifier-naming)
+Eigen::Matrix<double, 7, 1> Model::coriolis(
+    const Eigen::Matrix<double, 7, 1>& q,
+    const Eigen::Matrix<double, 7, 1>& dq,
+    const Eigen::Matrix3d& I_total,
     double m_total,
-    const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
+    const Eigen::Vector3d& F_x_Ctotal)
     const noexcept {
   std::array<double, 7> output;
   library_->coriolis(q.data(), dq.data(), I_total.data(), m_total, F_x_Ctotal.data(),
                      output.data());
-
-  return output;
+  return Eigen::Map<const Eigen::Matrix<double, 7, 1>>(output.data());
 }
 
-// std::array<double, 7> panda_model::Model::gravity(const panda_model::RobotState& robot_state,
-//                                              const std::array<double, 3>& gravity_earth) const
-//     noexcept {
-//   return gravity(robot_state.q, robot_state.m_total, robot_state.F_x_Ctotal, gravity_earth);
-// };
-
-// std::array<double, 7> panda_model::Model::gravity(const panda_model::RobotState& robot_state) const noexcept {
-//   return gravity(robot_state, robot_state.O_ddP_O);
-// };
-
-std::array<double, 7> panda_model::Model::gravity(
-    const std::array<double, 7>& q,
+Eigen::Matrix<double, 7, 1> Model::gravity(
+    const Eigen::Matrix<double, 7, 1>& q,
     double m_total,
-    const std::array<double, 3>& F_x_Ctotal,  // NOLINT(readability-identifier-naming)
-    const std::array<double, 3>& gravity_earth) const noexcept {
+  const Eigen::Vector3d& F_x_Ctotal,
+  const Eigen::Vector3d& gravity_earth) const noexcept {
   std::array<double, 7> output;
   library_->gravity(q.data(), gravity_earth.data(), m_total, F_x_Ctotal.data(), output.data());
-
-  return output;
+  return Eigen::Map<const Eigen::Matrix<double, 7, 1>>(output.data());
 }
 
 }  // namespace panda_model

@@ -1,6 +1,4 @@
-// #include <pybind11/chrono.h>
-// #include <pybind11/eigen.h>
-// #include <pybind11/functional.h>
+#include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -8,8 +6,9 @@
 #include <map>
 
 #include "library_downloader.h"
-#include "pandamodel/model.h"
 #include "network.h"
+#include "pandamodel/defaults.h"
+#include "pandamodel/model.h"
 #include "service_types.h"
 
 using research_interface::robot::Connect;
@@ -18,12 +17,13 @@ using research_interface::robot::LoadModelLibrary;
 
 namespace py = pybind11;
 
-bool downloadLibrary(const std::string &hostname, const std::string &path = "",
-                     const LoadModelLibrary::Architecture &architecture =
-                         LoadModelLibrary::Architecture::kX64,
-                     const LoadModelLibrary::System &operating_system =
-                         LoadModelLibrary::System::kLinux,
-                     const uint16_t version = 5) {
+std::string downloadLibrary(const std::string &hostname,
+                            const std::string &path = "",
+                            const LoadModelLibrary::Architecture &architecture =
+                                LoadModelLibrary::Architecture::kX64,
+                            const LoadModelLibrary::System &operating_system =
+                                LoadModelLibrary::System::kLinux,
+                            const uint16_t version = 5) {
   std::unique_ptr<panda_model::Network> network =
       std::make_unique<panda_model::Network>(hostname, kCommandPort);
   uint16_t ri_version;
@@ -45,19 +45,25 @@ bool downloadLibrary(const std::string &hostname, const std::string &path = "",
   auto downloader = new panda_model::LibraryDownloader(
       *network, final_path, architecture, operating_system);
   if (downloader->model_library_file_.exists()) {
-    py::print("Library downloaded into: ", downloader->path());
-    return true;
+    return downloader->path();
   }
-  py::print("Failed to write library file. Does the path exist?", path);
-  return false;
+  throw std::runtime_error("Failed to write library file. Does the path \"" +
+                           path + "\" exist?");
 }
-
-const std::array<double, 3> gravity_earth = {0., 0., -9.81};
 
 PYBIND11_MODULE(_core, m) {
   py::options options;
   // options.disable_enum_members_docstring();
-  // options.disable_function_signatures();
+  options.disable_function_signatures();
+
+  py::class_<Defaults>(m, "Defaults",
+                       "Default parameters for the Panda with standard "
+                       "gripper and no external load.")
+      .def_readonly_static("F_X_CTOTAL", &Defaults::F_x_Ctotal)
+      .def_readonly_static("M_TOTAL", &Defaults::m_total)
+      .def_readonly_static("I_TOTAL", &Defaults::I_total)
+      .def_readonly_static("EE_T_K", &Defaults::EE_T_K)
+      .def_readonly_static("F_T_EE", &Defaults::F_T_EE);
 
   py::enum_<LoadModelLibrary::Architecture>(
       m, "Architecture",
@@ -90,12 +96,13 @@ PYBIND11_MODULE(_core, m) {
           version: FCI version running on the targeted master control unit.
 
         Returns:
-          True if download successful.
+          Path pointing to the downloaded library.
         )delim");
 
-  py::enum_<panda_model::Frame>(m, "Frame",
-                           "Enumerates the seven joints, the flange, and the "
-                           "end effector of a robot.")
+  py::enum_<panda_model::Frame>(
+      m, "Frame",
+      "Enumerates the seven joints, the flange, and the "
+      "end effector of a robot.")
       .value("kJoint1", panda_model::Frame::kJoint1)
       .value("kJoint2", panda_model::Frame::kJoint2)
       .value("kJoint3", panda_model::Frame::kJoint3)
@@ -119,12 +126,12 @@ PYBIND11_MODULE(_core, m) {
           of processor architecture and operating system.
       )delim")
       .def("pose",
-           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
-                             const std::array<double, 16> &,
-                             const std::array<double, 16> &>(
+           py::overload_cast<panda_model::Frame,
+                             const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix4d &, const Eigen::Matrix4d &>(
                &panda_model::Model::pose, py::const_),
-           py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
-           R"delim(
+           py::arg("frame"), py::arg("q"), py::arg("F_T_EE") = Defaults::F_T_EE,
+           py::arg("EE_T_K") = Defaults::EE_T_K, R"delim(
            Gets the 4x4 pose matrix for the given frame in base frame.
            The pose is represented as a 4x4 matrix in column-major format.
 
@@ -138,12 +145,12 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 4x4 pose matrix, column-major.
            )delim")
       .def("body_jacobian",
-           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
-                             const std::array<double, 16> &,
-                             const std::array<double, 16> &>(
+           py::overload_cast<panda_model::Frame,
+                             const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix4d &, const Eigen::Matrix4d &>(
                &panda_model::Model::bodyJacobian, py::const_),
-           py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
-           R"delim(
+           py::arg("frame"), py::arg("q"), py::arg("F_T_EE") = Defaults::F_T_EE,
+           py::arg("EE_T_K") = Defaults::EE_T_K, R"delim(
            Gets the 6x7 Jacobian for the given frame, relative to that frame.
            The Jacobian is represented as a 6x7 matrix in column-major format.
 
@@ -157,12 +164,13 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 6x7 Jacobian, column-major.
            )delim")
       .def("zero_jacobian",
-           py::overload_cast<panda_model::Frame, const std::array<double, 7> &,
-                             const std::array<double, 16> &,
-                             const std::array<double, 16> &>(
+           py::overload_cast<panda_model::Frame,
+                             const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix<double, 4, 4> &,
+                             const Eigen::Matrix<double, 4, 4> &>(
                &panda_model::Model::zeroJacobian, py::const_),
-           py::arg("frame"), py::arg("q"), py::arg("F_T_EE"), py::arg("EE_T_K"),
-           R"delim(
+           py::arg("frame"), py::arg("q"), py::arg("F_T_EE") = Defaults::F_T_EE,
+           py::arg("EE_T_K") = Defaults::EE_T_K, R"delim(
            Gets the 6x7 Jacobian for the given joint relative to the base frame.
            The Jacobian is represented as a 6x7 matrix in column-major format.
 
@@ -176,12 +184,13 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 6x7 Jacobian, column-major.
            )delim")
       .def("mass",
-           py::overload_cast<const std::array<double, 7> &,
-                             const std::array<double, 9> &, double,
-                             const std::array<double, 3> &>(
-               &panda_model::Model::mass, py::const_),
-           py::arg("q"), py::arg("I_total"), py::arg("m_total"),
-           py::arg("F_x_Ctotal"), R"delim(
+           py::overload_cast<const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix3d &, double,
+                             const Eigen::Vector3d &>(&panda_model::Model::mass,
+                                                      py::const_),
+           py::arg("q"), py::arg("I_total") = Defaults::I_total,
+           py::arg("m_total") = Defaults::m_total,
+           py::arg("F_x_Ctotal") = Defaults::F_x_Ctotal, R"delim(
            Calculates the 7x7 mass matrix. Unit: :math:`[kg \times m^2]`.
 
            Args:
@@ -196,13 +205,14 @@ PYBIND11_MODULE(_core, m) {
              Vectorized 7x7 mass matrix, column-major.
            )delim")
       .def("coriolis",
-           py::overload_cast<const std::array<double, 7> &,
-                             const std::array<double, 7> &,
-                             const std::array<double, 9> &, double,
-                             const std::array<double, 3> &>(
+           py::overload_cast<const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix<double, 7, 1> &,
+                             const Eigen::Matrix3d &, double,
+                             const Eigen::Vector3d &>(
                &panda_model::Model::coriolis, py::const_),
-           py::arg("q"), py::arg("dq"), py::arg("I_total"), py::arg("m_total"),
-           py::arg("F_x_Ctotal"), R"delim(
+           py::arg("q"), py::arg("dq"), py::arg("I_total") = Defaults::I_total,
+           py::arg("m_total") = Defaults::m_total,
+           py::arg("F_x_Ctotal") = Defaults::F_x_Ctotal, R"delim(
            Calculates the Coriolis force vector (state-space equation): :math:` c= C \times
            dq`, in :math:`[Nm]`.
 
@@ -220,12 +230,12 @@ PYBIND11_MODULE(_core, m) {
              Coriolis force vector.
            )delim")
       .def("gravity",
-           py::overload_cast<const std::array<double, 7> &, double,
-                             const std::array<double, 3> &,
-                             const std::array<double, 3> &>(
+           py::overload_cast<const Eigen::Matrix<double, 7, 1> &, double,
+                             const Eigen::Vector3d &, const Eigen::Vector3d &>(
                &panda_model::Model::gravity, py::const_),
-           py::arg("q"), py::arg("m_total"), py::arg("F_x_Ctotal"),
-           py::arg("gravity_earth") = gravity_earth, R"delim(
+           py::arg("q"), py::arg("m_total") = Defaults::m_total,
+           py::arg("F_x_Ctotal") = Defaults::F_x_Ctotal,
+           py::arg("gravity_earth") = Defaults::gravity_earth, R"delim(
            Calculates the gravity vector. Unit: :math:`[Nm]`.
 
            Args:
