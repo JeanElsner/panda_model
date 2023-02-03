@@ -1,33 +1,21 @@
-""" Download all available shared libraries. """
-from panda_model import download_library, Architecture, OperatingSystem
+"""
+Download all available shared libraries.
+Set the environment variables PANDA_MODEL_HOST and PANDA_MODEL_VER
+to the hostname and version of your master control unit to run.
+"""
+import os
 
-ADDR = '172.16.0.2'
-VER = 4
+from panda_model import Architecture, OperatingSystem, download_library
 
-# x64
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.x64,
-                 operating_system=OperatingSystem.windows)
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.x64,
-                 operating_system=OperatingSystem.linux)
-# x86
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.x86,
-                 operating_system=OperatingSystem.windows)
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.x86,
-                 operating_system=OperatingSystem.linux)
-# arm64 and arm
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.arm64,
-                 operating_system=OperatingSystem.linux)
-download_library(ADDR,
-                 version=VER,
-                 architecture=Architecture.arm,
-                 operating_system=OperatingSystem.linux)
+ADDR = os.environ.get('PANDA_MODEL_HOST')
+VER = int(os.environ.get('PANDA_MODEL_VER'))
+
+args = [(Architecture.x64, OperatingSystem.windows),
+        (Architecture.x86, OperatingSystem.windows),
+        (Architecture.x64, OperatingSystem.linux),
+        (Architecture.x86, OperatingSystem.linux),
+        (Architecture.arm64, OperatingSystem.linux),
+        (Architecture.arm, OperatingSystem.linux)]
+
+for a in args:
+  download_library(ADDR, version=VER, architecture=a[0], operating_system=a[1])

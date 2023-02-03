@@ -3,20 +3,23 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <cstdlib>
 
 int main() {
   // Instantiate Model with shared library
-  auto model = new panda_model::Model("./libfrankamodel.linux_x64.so");
+  const char* path = std::getenv("PANDA_MODEL_PATH");
+  if (path == NULL) {
+    std::cerr << "PANDA_MODEL_PATH not set." << std::endl;
+    return -1;
+  }
+  auto model = new panda_model::Model(path);
 
   // Call the member functions with state vector arguments
-  std::array<double, 7> q = {{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-  std::array<double, 3> load = {0, 0, 0};
-  auto gravity = model->gravity(q, 0, load);
+  Eigen::Matrix<double, 7, 1> q = {0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4};
+  auto gravity = model->gravity(q);
 
   // Print the result
-  for (auto g : gravity) {
-    std::cout << g << " ";
-  }
+  std::cout << gravity << std::endl;
   std::cout << std::endl;
   return 0;
 }
