@@ -53,7 +53,7 @@ std::string downloadLibrary(const std::string &hostname,
 
 PYBIND11_MODULE(_core, m) {
   py::options options;
-  // options.disable_enum_members_docstring();
+  options.disable_enum_members_docstring();
   options.disable_function_signatures();
 
   py::class_<Defaults>(m, "Defaults",

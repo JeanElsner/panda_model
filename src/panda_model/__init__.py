@@ -46,7 +46,7 @@ coriolis, gravity, mass matrix etc. given a state:
 
 
 ================
-Run the examples
+Run the Examples
 ================
 
 To run the examples included in the repository, you need to set a few
