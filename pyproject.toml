@@ -4,13 +4,35 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "panda-model"
+description = "panda-model allows the offline use of the Model class from libfranka in Python and C++."
 version = "0.0.1"
 requires-python = ">=3.7"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
 ]
 dependencies = [
+  'numpy'
 ]
+license = {file = "LICENSE"}
+readme = "README.md"
+keywords = ["python", "robotics", "panda", "libfranka", "dynamics", "franka", "emika", "jacobian", "model", "control", "simulation", "robot-manipulator"]
+
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+]
+
+[project.urls]
+homepage = "https://github.com/JeanElsner/panda_model"
+documentation = "https://panda-model.readthedocs.io"
+repository = "https://github.com/JeanElsner/panda_model"
 
 [tool.scikit-build]
 cmake.build-type = "Release"
