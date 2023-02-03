@@ -18,6 +18,7 @@ if(BUILD_PYTHON)
   ## _core module
   pybind11_add_module(_core
     src/_core.cpp
+    src/defaults.cpp
     src/libfranka/network.cpp
     src/libfranka/library_downloader.cpp
     src/libfranka/model.cpp
@@ -62,6 +63,7 @@ if(BUILD_CPP)
     src/libfranka/model.cpp
     src/libfranka/model_library.cpp
     src/libfranka/library_loader.cpp
+    src/defaults.cpp
   )
   add_library(PandaModel::pandamodel ALIAS pandamodel)
 
