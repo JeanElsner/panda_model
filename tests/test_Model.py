@@ -14,7 +14,7 @@ class TestModel(unittest.TestCase):
 
   def setUp(self):
     self.model = Model(os.environ.get('PANDA_MODEL_PATH'))
-    self.atol = 10e-5
+    self.atol = 3.7e-5
 
   def test_gravity(self):
     computed_gravity = self.model.gravity(Q)
