@@ -9,3 +9,4 @@ const double F_T_EE_data[16] = {
     0.7071, -0.7071, 0, 0, 0.7071, 0.7071, 0, 0, 0, 0, 1, 0, 0, 0, 0.1034, 1,
 };
 const Eigen::Matrix4d Defaults::F_T_EE = Eigen::Matrix4d(F_T_EE_data);
+const double Defaults::m_total = 0.73;
