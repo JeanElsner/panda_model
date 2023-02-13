@@ -51,7 +51,7 @@ if(BUILD_CPP)
   project(
     panda_model
     LANGUAGES CXX
-    VERSION "0.0.4")
+    VERSION "0.0.5")
 
   find_package(Eigen3 REQUIRED)
   find_package(Poco REQUIRED Foundation Net)
@@ -113,7 +113,7 @@ install(FILES
   ## Packaging
   set(CPACK_PACKAGE_VENDOR "Jean Elsner")
   set(CPACK_GENERATOR "DEB;TGZ")
-  set(CPACK_PACKAGE_VERSION "0.0.4")
+  set(CPACK_PACKAGE_VERSION "0.0.5")
   set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
   # Debian versions require a dash
