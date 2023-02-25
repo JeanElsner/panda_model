@@ -15,6 +15,7 @@ jobs:
 
     name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v3
@@ -22,11 +23,6 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Set up Linux
-        run: >
-          sudo apt-get update && sudo apt-get install
-          libpoco-dev
-          libeigen3-dev
       - name: Build Python
         run: |
           python -m pip install --upgrade pip wheel
@@ -42,4 +38,3 @@ jobs:
           cmake .. -DBUILD_CPP=ON &&
           cmake --build . &&
           cpack -G DEB
-          
