@@ -25,7 +25,49 @@ ExternalProject_Add(
       -DENABLE_DATA_ODBC=OFF
       -DENABLE_DATA_POSTGRESQL=OFF
       -DENABLE_DATA_MYSQL=OFF
+      -DENABLE_DATA_SQLITE=OFF
+      -DENABLE_ACTIVERECORD=OFF
+      #
+      -DENABLE_ENCODINGS=OFF
+      -DENABLE_ENCODINGS_COMPILER=OFF
+      -DENABLE_XML=OFF
+      -DENABLE_JSON=OFF
+      -DENABLE_MONGODB=OFF
+      -DENABLE_REDIS=OFF
+      -DENABLE_PROMETHEUS=OFF
+      -DENABLE_PDF=OFF
+      -DENABLE_UTIL=OFF
+      -DENABLE_SEVENZIP=OFF
+      -DENABLE_ZIP=OFF
+      -DENABLE_CPPPARSER=OFF
+      -DENABLE_POCODOC=OFF
+      -DENABLE_PAGECOMPILER=OFF
+      -DENABLE_PAGECOMPILER_FILE2PAGE=OFF
+      -DENABLE_ACTIVERECORD=OFF
+      -DENABLE_ACTIVERECORD_COMPILER=OFF
 )
+
+# option(ENABLE_ENCODINGS "Enable Encodings" ON)
+# option(ENABLE_ENCODINGS_COMPILER "Enable Encodings Compiler" OFF)
+# option(ENABLE_XML "Enable XML" ON)
+# option(ENABLE_JSON "Enable JSON" ON)
+# option(ENABLE_MONGODB "Enable MongoDB" ON)
+# option(ENABLE_DATA_SQLITE "Enable Data SQlite" ON)
+# option(ENABLE_REDIS "Enable Redis" ON)
+# option(ENABLE_PROMETHEUS "Enable Prometheus" ON)
+# option(ENABLE_PDF "Enable PDF" OFF)
+# option(ENABLE_UTIL "Enable Util" ON)
+# option(ENABLE_NET "Enable Net" ON)
+
+# option(ENABLE_SEVENZIP "Enable SevenZip" OFF)
+# option(ENABLE_ZIP "Enable Zip" ON)
+# option(ENABLE_CPPPARSER "Enable C++ parser" OFF)
+# option(ENABLE_POCODOC "Enable Poco Documentation Generator" OFF)
+# option(ENABLE_PAGECOMPILER "Enable PageCompiler" ON)
+# option(ENABLE_PAGECOMPILER_FILE2PAGE "Enable File2Page" ON)
+
+# option(ENABLE_ACTIVERECORD "Enable ActiveRecord" ON)
+# option(ENABLE_ACTIVERECORD_COMPILER "Enable ActiveRecord Compiler" ON)
 
 option(BUILD_PYTHON "Build Python module" OFF)
 if(BUILD_PYTHON)
