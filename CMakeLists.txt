@@ -1,5 +1,29 @@
 cmake_minimum_required(VERSION 3.15...3.25)
 
+include(ExternalProject)
+
+ExternalProject_Add(
+  eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+  GIT_TAG 3.4.0
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/eigen
+  CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/eigen-install
+      -DBUILD_TESTING=OFF
+)
+
+ExternalProject_Add(
+  Poco
+  GIT_REPOSITORY https://github.com/pocoproject/poco.git
+  GIT_TAG poco-1.11.0-release
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/poco
+  CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/poco-install
+      -DCMAKE_BUILD_TYPE=Release
+      -DPOCO_STATIC=ON
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+)
+
 option(BUILD_PYTHON "Build Python module" OFF)
 if(BUILD_PYTHON)
   project(
@@ -7,8 +31,6 @@ if(BUILD_PYTHON)
     LANGUAGES CXX
     VERSION "${SKBUILD_PROJECT_VERSION}")
 
-  find_package(Eigen3 REQUIRED)
-  find_package(Poco REQUIRED Foundation Net)
   find_package(
     Python
     COMPONENTS Interpreter Development.Module
@@ -27,15 +49,16 @@ if(BUILD_PYTHON)
   )
 
   target_link_libraries(_core PRIVATE
-    Poco::Foundation
-    Poco::Net
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoFoundation.a
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoNet.a
   )
 
   target_include_directories(_core SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libfranka>
-    ${EIGEN3_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}/eigen-install/include/eigen3
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/include
   )
 
   target_compile_definitions(_core
@@ -53,11 +76,8 @@ if(BUILD_CPP)
     LANGUAGES CXX
     VERSION "0.0.5")
 
-  find_package(Eigen3 REQUIRED)
-  find_package(Poco REQUIRED Foundation Net)
-
   ## pandamodel module
-  add_library(pandamodel SHARED
+  add_library(pandamodel STATIC
     src/libfranka/network.cpp
     src/libfranka/library_downloader.cpp
     src/libfranka/model.cpp
@@ -68,8 +88,8 @@ if(BUILD_CPP)
   add_library(PandaModel::pandamodel ALIAS pandamodel)
 
   target_link_libraries(pandamodel PRIVATE
-    Poco::Foundation
-    Poco::Net
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoFoundation.a
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoNet.a
   )
 
   target_include_directories(pandamodel PUBLIC
@@ -77,7 +97,7 @@ if(BUILD_CPP)
     $<INSTALL_INTERFACE:include>
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libfranka>
-    ${EIGEN3_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}/eigen-install/include/eigen3
   )
 
   include(GNUInstallDirs)
@@ -106,7 +126,6 @@ if(BUILD_CPP)
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/PandaModelConfig.cmake
-  # ${CMAKE_CURRENT_BINARY_DIR}/FrankaConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pandamodel
 )
 
