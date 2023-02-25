@@ -4,7 +4,7 @@ include(ExternalProject)
 
 ExternalProject_Add(
   eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
   GIT_TAG 3.4.0
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/eigen
   CMAKE_ARGS
@@ -22,6 +22,9 @@ ExternalProject_Add(
       -DCMAKE_BUILD_TYPE=Release
       -DPOCO_STATIC=ON
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      -DENABLE_DATA_ODBC=OFF
+      -DENABLE_DATA_POSTGRESQL=OFF
+      -DENABLE_DATA_MYSQL=OFF
 )
 
 option(BUILD_PYTHON "Build Python module" OFF)
