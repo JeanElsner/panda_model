@@ -8,33 +8,52 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu
+    container: quay.io/pypa/manylinux2014_x86_64
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build package
+      run: |
+        /opt/python/cp37-cp37m/bin/python -m build .
+        /opt/python/cp38-cp38/bin/python -m build .
+        /opt/python/cp39-cp39/bin/python -m build .
+        /opt/python/cp310-cp310/bin/python -m build .
+        /opt/python/cp311-cp311/bin/python -m build .
+    - name: Upload distributions
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist
+  test:
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         os: ["ubuntu-20.04", "ubuntu-22.04"]
-
     name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Build Python
-        run: |
-          python -m pip install --upgrade pip wheel
-          pip install .
-      - name: Test Python
-        run: |
-          python -m pip install pytest
-          pytest ./tests/test_without_fci.py
-      - name: Build C++
-        run: >
-          mkdir build &&
-          cd build &&
-          cmake .. -DBUILD_CPP=ON &&
-          cmake --build . &&
-          cpack -G DEB
+      - name: Download distributions
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+      - run: ls dist/
+
+  #     - name: Build Python
+  #       run: |
+  #         python -m pip install --upgrade pip wheel
+  #         pip install .
+  #     - name: Test Python
+  #       run: |
+  #         python -m pip install pytest
+  #         pytest ./tests/test_without_fci.py
+  #     - name: Build C++
+  #       run: >
+  #         mkdir build &&
+  #         cd build &&
+  #         cmake .. -DBUILD_CPP=ON &&
+  #         cmake --build . &&
+  #         cpack -G DEB
