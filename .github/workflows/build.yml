@@ -10,40 +10,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux2014_x86_64
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build package
-      run: |
-        /opt/python/cp37-cp37m/bin/python -m build .
-        /opt/python/cp38-cp38/bin/python -m build .
-        /opt/python/cp39-cp39/bin/python -m build .
-        /opt/python/cp310-cp310/bin/python -m build .
-        /opt/python/cp311-cp311/bin/python -m build .
-    - name: Upload distributions
-      uses: actions/upload-artifact@v2
-      with:
-        name: dist
-        path: dist
-  test:
-    needs: build
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        os: ["ubuntu-20.04", "ubuntu-22.04"]
-    name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
-    runs-on: ${{ matrix.os }}
+        python-version: ["cp37-cp37m", "cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Download distributions
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist
-      - run: ls dist/
+    - uses: actions/checkout@v3
+    - name: Build package with ${{ matrix.python-version }}
+      run: |
+        /opt/python/${{ matrix.python-version }}/bin/python -m build .
+        /opt/python/${{ matrix.python-version }}/bin/pip install dist/*.whl
+        /opt/python/${{ matrix.python-version }}/bin/python -m pytest ./tests/test_without_fci.py
+    # - name: Upload distributions
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: dist
+    #     path: dist
+  # test:
+  #   needs: build
+  #   strategy:
+  #     matrix:
+  #       python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+  #       os: ["ubuntu-20.04", "ubuntu-22.04"]
+  #   name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Download distributions
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: dist
+  #         path: dist
+  #     - run: ls dist/
 
   #     - name: Build Python
   #       run: |
