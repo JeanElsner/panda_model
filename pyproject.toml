@@ -29,6 +29,12 @@ classifiers = [
         "Programming Language :: Python :: 3.11",
 ]
 
+[project.optional-dependencies]
+
+test = [
+    "pytest"
+]
+
 [project.urls]
 homepage = "https://github.com/JeanElsner/panda_model"
 documentation = "https://panda-model.readthedocs.io"

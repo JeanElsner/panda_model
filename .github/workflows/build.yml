@@ -18,7 +18,7 @@ jobs:
     - name: Build package with ${{ matrix.python-version }}
       run: |
         /opt/python/${{ matrix.python-version }}/bin/python -m build .
-        /opt/python/${{ matrix.python-version }}/bin/pip install dist/*.whl
+        /opt/python/${{ matrix.python-version }}/bin/pip install dist/*.whl[test]
         /opt/python/${{ matrix.python-version }}/bin/python -m pytest ./tests/test_without_fci.py
     # - name: Upload distributions
     #   uses: actions/upload-artifact@v2
