@@ -31,51 +31,23 @@ jobs:
         cmake --build . &&
         cpack -G DEB
         sudo dpkg -i ./*.deb
-    - name: Deploy to pypi
-      if: github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+    - name: Upload distributions
+      uses: actions/upload-artifact@v2
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
-    
-    # - name: Upload distributions
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: dist
-    #     path: dist
-  # test:
-  #   needs: build
-  #   strategy:
-  #     matrix:
-  #       python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-  #       os: ["ubuntu-20.04", "ubuntu-22.04"]
-  #   name: "panda-model on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v3
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Download distributions
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: dist
-  #         path: dist
-  #     - run: ls dist/
+        name: dist
+        path: dist/*
 
-  #     - name: Build Python
-  #       run: |
-  #         python -m pip install --upgrade pip wheel
-  #         pip install .
-  #     - name: Test Python
-  #       run: |
-  #         python -m pip install pytest
-  #         pytest ./tests/test_without_fci.py
-  #     - name: Build C++
-  #       run: >
-  #         mkdir build &&
-  #         cd build &&
-  #         cmake .. -DBUILD_CPP=ON &&
-  #         cmake --build . &&
-  #         cpack -G DEB
+  deploy:
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Deploy to pypi
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
