@@ -8,11 +8,11 @@ using the command line utility by simply calling
 
 .. code-block:: bash
 
-   panda_model_download <robot-ip>
+   panda-model-download <robot-ip>
 
 
 with the respective IP or hostname of your robot. See
-`panda_model_download -\-help` for additional options. You may
+`panda-model-download -\-help` for additional options. You may
 have to change the version parameter depending on the FCI version
 running on your master controller.
 

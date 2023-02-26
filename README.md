@@ -28,7 +28,7 @@ Clone the repository and install the package using pip by executing the followin
 ```
 pip install .
 ```
-This will install the command line script `panda_model_download` as well as Python bindings for the modified `Model` class.
+This will install the command line script `panda-model-download` as well as Python bindings for the modified `Model` class.
 ### C++
 To use the model in C++ you can build the necessary library by running:
 ```

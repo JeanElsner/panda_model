@@ -47,28 +47,6 @@ ExternalProject_Add(
       -DENABLE_ACTIVERECORD_COMPILER=OFF
 )
 
-# option(ENABLE_ENCODINGS "Enable Encodings" ON)
-# option(ENABLE_ENCODINGS_COMPILER "Enable Encodings Compiler" OFF)
-# option(ENABLE_XML "Enable XML" ON)
-# option(ENABLE_JSON "Enable JSON" ON)
-# option(ENABLE_MONGODB "Enable MongoDB" ON)
-# option(ENABLE_DATA_SQLITE "Enable Data SQlite" ON)
-# option(ENABLE_REDIS "Enable Redis" ON)
-# option(ENABLE_PROMETHEUS "Enable Prometheus" ON)
-# option(ENABLE_PDF "Enable PDF" OFF)
-# option(ENABLE_UTIL "Enable Util" ON)
-# option(ENABLE_NET "Enable Net" ON)
-
-# option(ENABLE_SEVENZIP "Enable SevenZip" OFF)
-# option(ENABLE_ZIP "Enable Zip" ON)
-# option(ENABLE_CPPPARSER "Enable C++ parser" OFF)
-# option(ENABLE_POCODOC "Enable Poco Documentation Generator" OFF)
-# option(ENABLE_PAGECOMPILER "Enable PageCompiler" ON)
-# option(ENABLE_PAGECOMPILER_FILE2PAGE "Enable File2Page" ON)
-
-# option(ENABLE_ACTIVERECORD "Enable ActiveRecord" ON)
-# option(ENABLE_ACTIVERECORD_COMPILER "Enable ActiveRecord Compiler" ON)
-
 option(BUILD_PYTHON "Build Python module" OFF)
 if(BUILD_PYTHON)
   project(
@@ -110,7 +88,6 @@ if(BUILD_PYTHON)
     PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
   install(DIRECTORY include DESTINATION ${SKBUILD_HEADERS_DIR})
-  install(PROGRAMS scripts/panda_model_download DESTINATION ${SKBUILD_SCRIPTS_DIR})
   install(TARGETS _core LIBRARY DESTINATION ${SKBUILD_PROJECT_NAME})
 endif()
 
@@ -184,6 +161,5 @@ install(FILES
   set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jean Elsner")
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpoco-dev")
-  # set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka, ros-noetic-libfranka, ros-foxy-libfranka")
   include(CPack)
 endif()

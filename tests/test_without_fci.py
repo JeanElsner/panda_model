@@ -2,6 +2,7 @@ import os
 import tempfile
 import subprocess
 import unittest
+from panda_model import download
 
 
 class TestWithoutFCI(unittest.TestCase):
@@ -13,11 +14,4 @@ class TestWithoutFCI(unittest.TestCase):
       self.fail(f'Failed to import module: {e}')
 
   def test_command_line(self):
-    try:
-      result = subprocess.run(['panda_model_download', '--help'],
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE,
-                              check=True)
-      self.assertEqual(result.returncode, 0)
-    except subprocess.CalledProcessError as e:
-      self.fail(f"Command failed with return code {e.returncode}: {e.stderr}")
+    self.assertRaisesRegex(RuntimeError, 'Host not found', download.run)
