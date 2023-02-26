@@ -99,7 +99,7 @@ if(BUILD_CPP)
     VERSION "0.1.0")
 
   ## pandamodel module
-  add_library(pandamodel STATIC
+  add_library(pandamodel SHARED
     src/libfranka/network.cpp
     src/libfranka/library_downloader.cpp
     src/libfranka/model.cpp
