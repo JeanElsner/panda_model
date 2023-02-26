@@ -96,7 +96,7 @@ if(BUILD_CPP)
   project(
     panda_model
     LANGUAGES CXX
-    VERSION "0.0.5")
+    VERSION "0.1.0")
 
   ## pandamodel module
   add_library(pandamodel STATIC
@@ -155,7 +155,7 @@ install(FILES
   ## Packaging
   set(CPACK_PACKAGE_VENDOR "Jean Elsner")
   set(CPACK_GENERATOR "DEB;TGZ")
-  set(CPACK_PACKAGE_VERSION "0.0.5")
+  set(CPACK_PACKAGE_VERSION "0.1.0")
   set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
   # Debian versions require a dash

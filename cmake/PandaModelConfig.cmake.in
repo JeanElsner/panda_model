@@ -1,6 +1,6 @@
 get_filename_component(PandaModel_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
-find_package(Eigen3 REQUIRED)
+# find_package(Eigen3 REQUIRED)
 
 if(NOT TARGET PandaModel::pandamodel)
   include("${PandaModel_CMAKE_DIR}/PandaModelTargets.cmake")
@@ -9,4 +9,4 @@ endif()
 set(PandaModel_LIBRARIES PandaModel::pandamodel)
 get_target_property(PandaModel_INCLUDE_DIRS PandaModel::pandamodel INTERFACE_INCLUDE_DIRECTORIES)
 
-list(APPEND PandaModel_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
+# list(APPEND PandaModel_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
