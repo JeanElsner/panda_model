@@ -120,6 +120,7 @@ if(BUILD_CPP)
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libfranka>
     ${CMAKE_CURRENT_BINARY_DIR}/eigen-install/include/eigen3
+    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/include
   )
 
   include(GNUInstallDirs)
