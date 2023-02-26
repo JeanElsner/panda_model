@@ -18,8 +18,16 @@ jobs:
     - name: Build package with ${{ matrix.python-version }}
       run: |
         /opt/python/${{ matrix.python-version }}/bin/python -m build .
-        /opt/python/${{ matrix.python-version }}/bin/pip install dist/*.whl[test]
+        /opt/python/${{ matrix.python-version }}/bin/pip install `ls -t dist/*.whl | head -n1`[test]
         /opt/python/${{ matrix.python-version }}/bin/python -m pytest ./tests/test_without_fci.py
+    - name: Build C++
+      run: >
+        mkdir build &&
+        cd build &&
+        cmake .. -DBUILD_CPP=ON &&
+        cmake --build . &&
+        cpack -G DEB
+        sudo dpkg -i ./*.deb
     # - name: Upload distributions
     #   uses: actions/upload-artifact@v2
     #   with:
