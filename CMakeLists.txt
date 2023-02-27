@@ -1,51 +1,6 @@
 cmake_minimum_required(VERSION 3.15...3.25)
 
-include(ExternalProject)
-
-ExternalProject_Add(
-  eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG 3.4.0
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/eigen
-  CMAKE_ARGS
-      -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/eigen-install
-      -DBUILD_TESTING=OFF
-)
-
-ExternalProject_Add(
-  Poco
-  GIT_REPOSITORY https://github.com/pocoproject/poco.git
-  GIT_TAG poco-1.11.0-release
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/poco
-  CMAKE_ARGS
-      -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/poco-install
-      -DCMAKE_BUILD_TYPE=Release
-      -DPOCO_STATIC=ON
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-      -DENABLE_DATA_ODBC=OFF
-      -DENABLE_DATA_POSTGRESQL=OFF
-      -DENABLE_DATA_MYSQL=OFF
-      -DENABLE_DATA_SQLITE=OFF
-      -DENABLE_ACTIVERECORD=OFF
-      #
-      -DENABLE_ENCODINGS=OFF
-      -DENABLE_ENCODINGS_COMPILER=OFF
-      -DENABLE_XML=OFF
-      -DENABLE_JSON=OFF
-      -DENABLE_MONGODB=OFF
-      -DENABLE_REDIS=OFF
-      -DENABLE_PROMETHEUS=OFF
-      -DENABLE_PDF=OFF
-      -DENABLE_UTIL=OFF
-      -DENABLE_SEVENZIP=OFF
-      -DENABLE_ZIP=OFF
-      -DENABLE_CPPPARSER=OFF
-      -DENABLE_POCODOC=OFF
-      -DENABLE_PAGECOMPILER=OFF
-      -DENABLE_PAGECOMPILER_FILE2PAGE=OFF
-      -DENABLE_ACTIVERECORD=OFF
-      -DENABLE_ACTIVERECORD_COMPILER=OFF
-)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(BUILD_PYTHON "Build Python module" OFF)
 if(BUILD_PYTHON)
@@ -54,6 +9,8 @@ if(BUILD_PYTHON)
     LANGUAGES CXX
     VERSION "${SKBUILD_PROJECT_VERSION}")
 
+  find_package(Eigen3 REQUIRED)
+  find_package(Poco REQUIRED Foundation Net)
   find_package(
     Python
     COMPONENTS Interpreter Development.Module
@@ -72,16 +29,16 @@ if(BUILD_PYTHON)
   )
 
   target_link_libraries(_core PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoFoundation.a
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoNet.a
+    Poco::Foundation
+    Poco::Net
   )
 
   target_include_directories(_core SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libfranka>
-    ${CMAKE_CURRENT_BINARY_DIR}/eigen-install/include/eigen3
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/include
+    ${EIGEN3_INCLUDE_DIRS}
+    #${Poco_INCLUDE_DIRS}
   )
 
   target_compile_definitions(_core
@@ -110,8 +67,8 @@ if(BUILD_CPP)
   add_library(PandaModel::pandamodel ALIAS pandamodel)
 
   target_link_libraries(pandamodel PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoFoundation.a
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/lib/libPocoNet.a
+    Poco::Foundation
+    Poco::Net
   )
 
   target_include_directories(pandamodel PUBLIC
@@ -119,8 +76,8 @@ if(BUILD_CPP)
     $<INSTALL_INTERFACE:include>
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libfranka>
-    ${CMAKE_CURRENT_BINARY_DIR}/eigen-install/include/eigen3
-    ${CMAKE_CURRENT_BINARY_DIR}/poco-install/include
+    ${EIGEN3_INCLUDE_DIRS}
+    #${Poco_INCLUDE_DIRS}
   )
 
   include(GNUInstallDirs)

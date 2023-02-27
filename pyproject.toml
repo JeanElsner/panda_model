@@ -48,3 +48,14 @@ BUILD_PYTHON = "ON"
 
 [project.scripts]
 panda-model-download = "panda_model.download:run"
+
+[tool.cibuildwheel]
+manylinux-x86_64-image = "manylinux2014"
+build = ["cp37-*", "cp38-*", "cp39-*", "cp310-*", "cp311-*"]
+skip = ["pp*", "*musllinux*"]
+test-command = "pytest {package}/tests/test_without_fci.py"
+test-extras = ["test"]
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y eigen3-devel poco-devel"
+archs = ["x86_64"]

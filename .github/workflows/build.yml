@@ -12,46 +12,42 @@ on:
     types: [published]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux2014_x86_64
-    strategy:
-      matrix:
-        python-version: ["cp37-cp37m", "cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build package with Python ${{ matrix.python-version }}
-      run: |
-        /opt/python/${{ matrix.python-version }}/bin/python -m build .
-        /opt/python/${{ matrix.python-version }}/bin/pip install `ls -t dist/*.whl | head -n1`[test]
-    - name: Test package with Python ${{ matrix.python-version }}
-      run: /opt/python/${{ matrix.python-version }}/bin/python -m pytest ./tests/test_without_fci.py
-    - name: Build C++
-      run: >
-        mkdir build &&
-        cd build &&
-        cmake .. -DBUILD_CPP=ON &&
-        cmake --build . &&
-        cpack -G DEB
-        sudo dpkg -i ./*.deb
-    - name: Upload distributions
-      uses: actions/upload-artifact@v2
-      with:
-        name: dist
-        path: dist/*
-
-  deploy:
-    needs: build
-    if: github.event_name == 'release'
+  build_wheels:
+    name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
     steps:
-      - name: Download distributions
-        uses: actions/download-artifact@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.12.0
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+      - uses: actions/upload-artifact@v3
         with:
-          name: dist
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: Build sdist
+        run: pipx run build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
           path: dist
-      - name: Deploy to pypi
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      - uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
           user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.pypi_password }}
