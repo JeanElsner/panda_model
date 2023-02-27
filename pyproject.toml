@@ -5,7 +5,7 @@ build-backend = "scikit_build_core.build"
 [project]
 name = "panda-model"
 description = "panda-model allows the offline use of the Model class from libfranka in Python and C++."
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.7"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
